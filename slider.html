@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+.slidecontainer {
+  width: 100%;
+}
+
+.slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 25px;
+  background: #d3d3d3;
+  outline: none;
+  opacity: 0.7;
+  -webkit-transition: .2s;
+  transition: opacity .2s;
+}
+
+.slider:hover {
+  opacity: 1;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 25px;
+  height: 25px;
+  background: #4CAF50;
+  cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+  width: 25px;
+  height: 25px;
+  background: #4CAF50;
+  cursor: pointer;
+}
+</style>
+<style>
+
+  .names {
+	fill: none;
+	stroke: #fff;
+	stroke-linejoin: round;
+	}
+
+    /* Tooltip CSS */
+    .d3-tip {
+		line-height: 1.5;
+		font-weight: 400;
+		font-family:"avenir next", Arial, sans-serif;
+		padding: 6px;
+		background: white;
+		color: green;
+		border-radius: 1px;
+		pointer-events: none;
+		
+    }
+
+    /* Creates a small triangle extender for the tooltip */
+    .d3-tip:after {      
+		box-sizing: border-box;
+		display: inline;
+		font-size: 8px;
+		width: 100%;
+		line-height: 1.5;
+		color: rgba(0, 0, 0, 0.6);
+		position: absolute;
+		pointer-events: none;
+    }
+
+    /* Northward tooltips */
+    .d3-tip.n:after {
+		content: "\25BC";
+		margin: -1px 0 0 0;
+		top: 100%;
+		left: 0;
+		text-align: center;
+	}
+
+    /* Eastward tooltips */
+    .d3-tip.e:after {
+		content: "\25C0";
+		margin: -4px 0 0 0;
+		top: 50%;
+		left: -8px;
+	}
+
+    /* Southward tooltips */
+    .d3-tip.s:after {
+      content: "\25B2";
+      margin: 0 0 1px 0;
+      top: -8px;
+      left: 0;
+      text-align: center;
+    }
+
+    /* Westward tooltips */
+    .d3-tip.w:after {
+      content: "\25B6";
+      margin: -4px 0 0 -1px;
+      top: 50%;
+      left: 100%;
+    }
+
+
+    .details{
+      color:white;
+    }
+	
+	path { 
+    stroke: black;
+    stroke-width: 5;
+    fill: none;
+	}
+	.axis path,
+	.axis line {
+		fill: none;
+		stroke: grey;
+		stroke-width: 3;
+		shape-rendering: crispEdges;
+	}
+	.l_axis{
+	background: white;
+	}
+</style>
+
+</head>
+<script src="http://d3js.org/d3.v4.min.js"></script>
+<script src="http://d3js.org/queue.v1.min.js"></script>
+<script src="http://d3js.org/topojson.v1.min.js"></script>
+<script src="d3-tip.js"></script>
+<script src="index_co2.js"></script>
+<script src="index_population.js"></script>
+<script src="dualAxis.js"></script>
+
+<body>
+
+<h1 align="center">
+Visual Correlation  
+</h1>
+<table style="width: 100%; height: 100%;">
+<tr>
+<td align="center">
+Data File1:
+<select id="mySelect1" onchange="onSelectCSV()" align="center">
+	<option value="select">select</option>
+  <option value="co2_emissions_tonnes_per_person">co2_emissions_tonnes_per_person</option>
+  <option value="child_mortality_0_5_year_olds_dying_per_1000_born">child_mortality_0_5_year_olds_dying_per_1000_born</option>
+  <option value="children_per_woman_total_fertility">children_per_woman_total_fertility</option>
+  <option value="energy_use_per_person">energy_use_per_person</option>
+  <option value="income_per_person_gdppercapita_ppp_inflation_adjusted">income_per_person_gdppercapita_ppp_inflation_adjusted</option>
+  <option value="population_density_per_square_km">population_density_per_square_km</option>
+</select>
+<button id = "l_button_1" type="button" onclick="parellel_coordinates_1()">Parellel Coordinates</button>
+</td>
+
+<td align="center">
+Data File2:
+<select id="mySelect2" onchange="onSelectCSV()" >
+	<option value="select">select</option>
+  <option value="co2_emissions_tonnes_per_person">co2_emissions_tonnes_per_person</option>
+  <option value="child_mortality_0_5_year_olds_dying_per_1000_born">child_mortality_0_5_year_olds_dying_per_1000_born</option>
+  <option value="children_per_woman_total_fertility">children_per_woman_total_fertility</option>
+  <option value="energy_use_per_person">energy_use_per_person</option>
+  <option value="income_per_person_gdppercapita_ppp_inflation_adjusted">income_per_person_gdppercapita_ppp_inflation_adjusted</option>
+  <option value="population_density_per_square_km">population_density_per_square_km</option>
+</select>
+<button id = "l_button_2" type="button" onclick="parellel_coordinates_2()">Parellel Coordinates</button>
+</td>
+</tr>
+</table>
+
+
+<p><b>Move the slider to select year.</b> &nbsp;&nbsp;&nbsp;&nbspYear Selected: <span id="demo"></span></p>
+
+<div class="slidecontainer">
+  <input type="range" min="1950" max="2019" value="1950" class="slider" id="myRange" >
+</div>
+
+<div position:relative; width = "100%"; height = "400px">
+<table>
+<tr>
+	<td>
+		<div width = "50%" height = "400px" style="float:left" >
+			<svg id ="svg1" > 
+			</svg>
+	  </div >
+	<td>
+	<td>
+		<div width = "50%" height = "400px" style="float:right">
+			<svg id ="svg2"   > 
+			</svg>
+		 </div>
+	</td>
+<tr>
+</table>
+<table>
+<center>
+<svg id = "svg3" height = "400" width ="600"  > </svg>
+<center>
+</table>  
+  
+ </div>
+
+<script>
+var filename1 ;
+var filename2 ;
+
+function onSelectCSV()
+{
+	console.log("on change", document.getElementById('mySelect1').value);
+	filename1 = document.getElementById('mySelect1').value + ".csv";
+	
+	console.log("on change", document.getElementById('mySelect2').value);
+	filename2 = document.getElementById('mySelect2').value + ".csv"
+	document.getElementById("myRange").value = 1950;
+	index_co2(filename1,document.getElementById("myRange").value,filename2);
+	index_population(filename2,document.getElementById("myRange").value,filename1);
+}
+
+var slider = document.getElementById("myRange");
+var output = document.getElementById("demo");
+output.innerHTML = slider.value;
+
+slider.oninput = function() {
+  output.innerHTML = this.value;
+	index_co2(filename1,this.value,filename2);
+	index_population(filename2,this.value,filename1);
+}
+function parellel_coordinates_1()
+{
+	var file = document.getElementById("mySelect1").value;
+	console.log("file : ", file);
+	let filename = document.getElementById("mySelect1").value + ".csv" ;
+	if(file == "select")
+	{
+		alert("please select correct file name");
+	}
+	else
+	{
+		let url = "file:///D:/populationandco2/Side-side/PC_csv2_trial.html?filename="+filename;
+		window.open(url);
+	}
+}
+function parellel_coordinates_2()
+{
+	var file = document.getElementById("mySelect2").value;
+	console.log("file : ", file);
+	let filename = document.getElementById("mySelect2").value + ".csv" ;
+	if(file == "select")
+	{
+		alert("please select correct file name");
+	}
+	else
+	{
+		let url = "file:///D:/populationandco2/Side-side/PC_csv2_trial.html?filename="+filename;
+		window.open(url);
+	}
+}
+</script>
+
+</body>
+</html>
